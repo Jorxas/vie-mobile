@@ -1,7 +1,7 @@
 {
   "name": "VIE – Demo",
   "short_name": "VIE Demo",
-  "description": "Demo von VIE mit erfundenen Daten: Woche, Projekte, Studium, Bewerbungen, Gewohnheiten, Finanzen. Nichts wird gespeichert. · Démo de VIE avec des données fictives.",
+  "description": "Demo von VIE mit erfundenen Daten: Woche, Projekte, Studium, Bewerbungen, Gewohnheiten, Finanzen. Nichts wird gespeichert. · Demo of VIE with fictional data (English in the settings). · Démo de VIE avec des données fictives.",
   "id": "./",
   "start_url": "./",
   "scope": "./",

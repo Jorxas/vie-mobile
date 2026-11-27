@@ -4,9 +4,9 @@
      la copie en cache est servie après 4 s au plus, et l'appli s'ouvre quand même.
    - Ne touche JAMAIS à /api/ (chat, agent, synchronisation, connexion) ni aux données : elles restent dans le stockage local et sur le serveur. */
 'use strict';
-const VERSION = "12439bc86a73";
+const VERSION = "4820eaeb3423";
 const CACHE = 'vie-mobile-' + VERSION;
-const FILES = ["./","./app.js","./core.js","./demo-i18n.js","./demo-start.js","./favicon.svg","./i18n-woerterbuch.js","./manifest.webmanifest","./mobile.css","./pwa.js","./styles.css","./vie-actions.js","./vie-agent-ui.js","./vie-assistant.js","./vie-boot.js","./vitrine-neutre.js","./icons/icon-192.png","./icons/icon-512.png","./icons/icon-maskable-192.png","./icons/icon-maskable-512.png","./icons/apple-touch-icon.png","./icons/favicon-48.png"];
+const FILES = ["./","./app.js","./core.js","./demo-i18n.js","./demo-start.js","./favicon.svg","./i18n-en.js","./i18n-woerterbuch.js","./manifest.webmanifest","./mobile.css","./pwa.js","./styles.css","./vie-actions.js","./vie-agent-ui.js","./vie-assistant.js","./vie-boot.js","./vitrine-neutre.js","./vitrine-ui.js","./icons/icon-192.png","./icons/icon-512.png","./icons/icon-maskable-192.png","./icons/icon-maskable-512.png","./icons/apple-touch-icon.png","./icons/favicon-48.png"];
 const TIMEOUT_MS = 4000;
 
 self.addEventListener('install', event => {

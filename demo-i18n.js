@@ -1,4 +1,5 @@
-/* Sprachschicht der öffentlichen Demo: Deutsch ist die Standardsprache, Französisch (die Originalsprache der App) wählt man mit ?lang=fr.
+/* Sprachschicht der öffentlichen Demo: Deutsch ist die Standardsprache (bei jedem Öffnen), Englisch mit ?lang=en, Französisch (die Originalsprache der App) mit ?lang=fr.
+   Gewählt wird in den Einstellungen (vitrine-ui.js); nichts wird gespeichert. Vitrine-Fassung von demo-i18n.js der Portfolio-Demo (Jorxas/Vie), um Englisch ergänzt.
    Die echten Oberflächendateien bleiben unverändert (Quelltext französisch, gespeicherte Werte wie 'envoyée' oder 'haute' sind sprachunabhängige interne Werte).
    Dieses Skript übersetzt nur die Anzeige: Textknoten und sichtbare Attribute werden anhand des Wörterbuchs (i18n-woerterbuch.js) ersetzt,
    Zahlen- und Datumsformate wechseln zwischen de-DE und fr-FR. Es lädt nichts nach und läuft vor den Oberflächenskripten. */
@@ -7,12 +8,13 @@
   var W = window.VIE_I18N || { de: {}, fr: {} };
   var param = '';
   try { param = (new URLSearchParams(location.search).get('lang') || '').toLowerCase(); } catch (e) { /* ohne Parameter: Standard */ }
-  var lang = param === 'fr' ? 'fr' : 'de';
+  var lang = param === 'fr' || param === 'en' ? param : 'de';
+  var LOCALE = { de: 'de-DE', en: 'en-GB', fr: 'fr-FR' }[lang];
   window.VieLang = lang;
-  window.VieLocale = lang === 'fr' ? 'fr-FR' : 'de-DE';
+  window.VieLocale = LOCALE;
   document.documentElement.lang = lang;
 
-  var dict = lang === 'de' ? W.de : W.fr;
+  var dict = W[lang] || {};
   var exact = Object.create(null), strong = [], weak = [], subs = [];
   function esc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
   Object.keys(dict).forEach(function (k) {
@@ -125,27 +127,27 @@
     var d = document.querySelector('meta[name="description"]');
     if (d) { var c = d.getAttribute('content'); var t = translateText(c); if (t !== c) d.setAttribute('content', t); }
   }
-  if (lang === 'fr') {
-    // Der ausgelieferte HTML-Text ist deutsch (Standard); Titel und Beschreibung für die französische Fassung zurücksetzen.
-    document.title = 'VIE — Espace personnel';
+  if (lang !== 'de') {
+    // Der ausgelieferte HTML-Text ist deutsch (Standard); Titel und Beschreibung für die englische bzw. französische Fassung ersetzen.
+    document.title = lang === 'fr' ? 'VIE — Espace personnel' : 'VIE · Personal space';
     var d0 = document.querySelector('meta[name="description"]');
-    if (d0) d0.setAttribute('content', 'VIE — votre poste de pilotage personnel : projets, études, habitudes et objectifs.');
+    if (d0) d0.setAttribute('content', lang === 'fr' ? 'VIE — votre poste de pilotage personnel : projets, études, habitudes et objectifs.' : 'VIE, your personal cockpit: projects, studies, habits and goals.');
   }
 
-  // Zahlen- und Datumsformate: der Quelltext verlangt fr-FR, in der deutschen Fassung wird daraus de-DE.
-  if (lang === 'de' && window.Intl) {
+  // Zahlen- und Datumsformate: der Quelltext verlangt fr-FR, in der deutschen Fassung wird daraus de-DE, in der englischen en-GB.
+  if (lang !== 'fr' && window.Intl) {
     ['NumberFormat', 'DateTimeFormat', 'ListFormat', 'PluralRules', 'RelativeTimeFormat'].forEach(function (name) {
       var Orig = Intl[name];
       if (!Orig) return;
       Intl[name] = new Proxy(Orig, {
-        construct: function (t, a, nt) { if (a[0] === 'fr-FR' || a[0] === 'fr') a = ['de-DE'].concat(Array.prototype.slice.call(a, 1)); return Reflect.construct(t, a, nt === Intl[name] ? t : nt); },
-        apply: function (t, th, a) { if (a[0] === 'fr-FR' || a[0] === 'fr') a = ['de-DE'].concat(Array.prototype.slice.call(a, 1)); return Reflect.apply(t, th, a); }
+        construct: function (t, a, nt) { if (a[0] === 'fr-FR' || a[0] === 'fr') a = [LOCALE].concat(Array.prototype.slice.call(a, 1)); return Reflect.construct(t, a, nt === Intl[name] ? t : nt); },
+        apply: function (t, th, a) { if (a[0] === 'fr-FR' || a[0] === 'fr') a = [LOCALE].concat(Array.prototype.slice.call(a, 1)); return Reflect.apply(t, th, a); }
       });
     });
     [[Date.prototype, ['toLocaleDateString', 'toLocaleTimeString', 'toLocaleString']], [Number.prototype, ['toLocaleString']]].forEach(function (pair) {
       pair[1].forEach(function (fn) {
         var o = pair[0][fn];
-        pair[0][fn] = function (loc) { var a = Array.prototype.slice.call(arguments); if (a[0] === 'fr-FR' || a[0] === 'fr') a[0] = 'de-DE'; return o.apply(this, a); };
+        pair[0][fn] = function (loc) { var a = Array.prototype.slice.call(arguments); if (a[0] === 'fr-FR' || a[0] === 'fr') a[0] = LOCALE; return o.apply(this, a); };
       });
     });
   }

@@ -11,8 +11,13 @@
   // Appli installable : sur https (Tailscale, GitHub Pages), ou sur http://127.0.0.1 pour la seule vitrine construite (balise <meta name="vie-pwa" content="toujours">, tests locaux).
   // Jamais pour l'appli servie localement par vie-server sur http://127.0.0.1 (développement, mode structure, tests existants) ni en file://.
   var https = location.protocol === 'https:' || (location.hostname === '127.0.0.1' && !!document.querySelector('meta[name="vie-pwa"][content="toujours"]'));
-  // Textes de cette couche : français (appli) ; allemand quand la démo publique est affichée en allemand (window.VieLang, posé par demo-i18n.js).
-  var T = window.VieLang === 'de' ? {
+  // Textes de cette couche : français (appli) ; allemand ou anglais quand la démo publique est affichée dans cette langue (window.VieLang, posé par demo-i18n.js).
+  var T = window.VieLang === 'en' ? {
+    today: 'Today', week: 'Week', life: 'Routines', finance: 'Finance', all: 'All', allAria: 'All sections', bar: 'Quick navigation',
+    install: '<strong>Install VIE on this device</strong>: icon on your home screen, full screen, works offline too.', no: 'No thanks', yes: 'Install',
+    ios: '<strong>Install VIE:</strong> tap <b>Share</b>, then <b>“Add to Home Screen”</b>, then open VIE from the icon.', ok: 'Got it',
+    backup: '<strong>Remember to back up.</strong> Here your data is only on this device: export a copy (JSON file) from time to time.', later: 'Later', exportNow: 'Export now'
+  } : window.VieLang === 'de' ? {
     today: 'Heute', week: 'Woche', life: 'Routinen', finance: 'Finanzen', all: 'Alle', allAria: 'Alle Bereiche', bar: 'Schnellnavigation',
     install: '<strong>VIE auf diesem Gerät installieren</strong>: Symbol auf dem Startbildschirm, Vollbild, funktioniert auch ohne Netz.', no: 'Nein danke', yes: 'Installieren',
     ios: '<strong>VIE installieren:</strong> <b>Teilen</b> und dann <b>„Zum Home-Bildschirm“</b> antippen, danach VIE über das Symbol öffnen.', ok: 'Verstanden',
