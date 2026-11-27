@@ -13,7 +13,7 @@
   var https = location.protocol === 'https:' || (location.hostname === '127.0.0.1' && !!document.querySelector('meta[name="vie-pwa"][content="toujours"]'));
   // Textes de cette couche : français (appli) ; allemand quand la démo publique est affichée en allemand (window.VieLang, posé par demo-i18n.js).
   var T = window.VieLang === 'de' ? {
-    today: 'Heute', week: 'Woche', life: 'Gewohnheiten', finance: 'Finanzen', all: 'Alle', allAria: 'Alle Bereiche', bar: 'Schnellnavigation',
+    today: 'Heute', week: 'Woche', life: 'Routinen', finance: 'Finanzen', all: 'Alle', allAria: 'Alle Bereiche', bar: 'Schnellnavigation',
     install: '<strong>VIE auf diesem Gerät installieren</strong>: Symbol auf dem Startbildschirm, Vollbild, funktioniert auch ohne Netz.', no: 'Nein danke', yes: 'Installieren',
     ios: '<strong>VIE installieren:</strong> <b>Teilen</b> und dann <b>„Zum Home-Bildschirm“</b> antippen, danach VIE über das Symbol öffnen.', ok: 'Verstanden',
     backup: '<strong>Denk an eine Sicherung.</strong> Hier liegen deine Daten nur auf diesem Gerät: exportiere ab und zu eine Kopie (JSON-Datei).', later: 'Später', exportNow: 'Jetzt exportieren'
