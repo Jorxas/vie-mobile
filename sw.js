@@ -4,7 +4,7 @@
    - Cache d'abord : l'appli s'ouvre sans réseau.
    - Nouvelle version : installée en arrière-plan, appliquée seulement quand l'utilisateur touche « Mettre à jour ». */
 'use strict';
-const VERSION = "d9de4abb3693";
+const VERSION = "b37151cd9fef";
 const CACHE = 'vie-mobile-' + VERSION;
 const FILES = ["./","./index.html","./styles.css","./mobile.css","./core.js","./app.js","./pwa.js","./manifest.webmanifest","./icons/icon-192.png","./icons/icon-512.png","./icons/icon-maskable-192.png","./icons/icon-maskable-512.png","./icons/apple-touch-icon.png","./icons/favicon-48.png"];
 
