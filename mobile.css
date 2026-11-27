@@ -1,0 +1,38 @@
+/* VIE mobile — ajouts « appli » (chargé après styles.css, uniquement dans la version mobile). */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
+
+/* Barre d'onglets du bas (téléphone) */
+.vie-tabbar{display:none;position:fixed;left:0;right:0;bottom:0;z-index:9;background:rgba(255,255,255,.95);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid var(--edge);padding:6px 6px calc(6px + env(safe-area-inset-bottom));justify-content:space-around;gap:2px}
+.vie-tab{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;background:none;color:var(--muted);font:inherit;font-size:10.5px;font-weight:650;padding:6px 2px;border-radius:12px;min-height:50px;cursor:pointer}
+.vie-tab .ico{font-size:18px;line-height:1}
+.vie-tab .lbl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.vie-tab.active{color:var(--accent);background:var(--accent-soft)}
+.vie-tab:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+/* Bannières (installation, mise à jour, rappel de sauvegarde) */
+.vie-pwa-banner{position:fixed;left:12px;right:12px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:9;max-width:520px;margin:0 auto;background:#20253a;color:#fff;border-radius:16px;padding:14px 14px 12px;box-shadow:0 14px 40px rgba(20,24,48,.3);font-size:13.5px;line-height:1.45}
+.vie-pwa-banner b,.vie-pwa-banner strong{color:#fff}
+.vie-pwa-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
+.vie-pwa-btn{border:0;border-radius:10px;padding:9px 14px;font:inherit;font-weight:700;font-size:13px;background:rgba(255,255,255,.12);color:#fff;cursor:pointer}
+.vie-pwa-btn.primary{background:#7372fc}
+
+@media(max-width:730px){
+  .vie-tabbar{display:flex}
+  .vie-pwa-banner{bottom:calc(76px + env(safe-area-inset-bottom))}
+  main{padding-bottom:calc(100px + env(safe-area-inset-bottom))}
+  /* iPhone : pas de zoom automatique quand on touche un champ (police >= 16 px) */
+  input,select,textarea,.field select,.field textarea{font-size:16px}
+  input{min-width:0}
+  /* Encoche / barre d'état en mode plein écran */
+  .topbar{height:calc(65px + env(safe-area-inset-top));padding-top:env(safe-area-inset-top)}
+  .sidebar{padding-top:calc(28px + env(safe-area-inset-top));padding-bottom:calc(16px + env(safe-area-inset-bottom));overflow-y:auto}
+  .toast{top:calc(74px + env(safe-area-inset-top))}
+  dialog{max-height:calc(100dvh - 24px)}
+  #view:focus{outline:none}
+  /* Habitudes : nom sur sa ligne, 7 grandes cases faciles à toucher */
+  .habit-line{grid-template-columns:repeat(7,minmax(0,1fr));gap:8px 4px;justify-items:center}
+  .habit-line>:first-child{grid-column:1/-1;justify-self:stretch}
+  .habit-line>span:first-child{display:none}
+  .habit-dot{width:34px;height:34px;border-radius:10px}
+}
