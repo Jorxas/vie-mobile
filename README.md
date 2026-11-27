@@ -1,23 +1,13 @@
-# VIE — appli mobile
+# VIE – Demo als installierbare App
 
-Version installable (PWA) de VIE, mon tableau de bord personnel : semaine, projets, études, candidatures, habitudes, finances, objectifs et idées.
+Die öffentliche Demo von [Vie](https://github.com/Jorxas/Vie) als Progressive Web App fürs Smartphone: dieselbe Oberfläche und dieselben **erfundenen Beispieldaten** wie die [interaktive Demo](https://jorxas.github.io/Vie/), ergänzt um App-Symbol, Vollbild, untere Navigationsleiste und Offline-Start.
 
-**Ouvrir / installer :** https://jorxas.github.io/vie-mobile/
+**Öffnen / installieren:** https://jorxas.github.io/vie-mobile/ (Android: Chrome → „Installieren“; iPhone: Safari → Teilen → „Zum Home-Bildschirm“). Französisch: `?lang=fr`.
 
-## Installer sur Android
+- Keine persönlichen Daten: Aufgaben, Bewerbungen, Projekte und Ausgaben sind erfunden; Änderungen gelten nur bis zum Neuladen, im Browser der Besucher wird nichts gespeichert.
+- Keine Konten, kein Server, keine Tracker, keine externen Anfragen. Assistent und Agent sind in der Demo nicht verbunden.
+- Geprüft vor jeder Veröffentlichung in Chrome (Smartphone-Emulation): Installierbarkeit, Offline-Start, Navigation, und dass in allen zehn Bereichen auf Deutsch und Französisch kein realer Name angezeigt wird.
 
-1. Ouvrir le lien ci-dessus dans **Chrome**.
-2. Toucher **Installer** dans la bannière (ou menu ⋮ → **Installer l'application** / **Ajouter à l'écran d'accueil**).
-3. VIE apparaît avec son icône ; elle s'ouvre en plein écran et fonctionne **sans réseau**.
+---
 
-## Données
-
-- Tout ce qui est saisi reste **dans le téléphone** (stockage local du navigateur). Rien n'est envoyé sur Internet, ce dépôt ne contient que le code.
-- Les données du téléphone et celles du PC sont **séparées**. Pour transférer : Réglages → **Exporter JSON** d'un côté, **Importer JSON** de l'autre.
-- Désinstaller l'appli ou effacer les données de Chrome efface aussi les données VIE : exporter une sauvegarde de temps en temps (l'appli le rappelle toutes les deux semaines).
-
-## Mises à jour
-
-Ce dépôt est généré automatiquement (`mobile/build-mobile.cjs` puis `mobile/deploy-mobile.cjs` dans le projet VIE). Quand une nouvelle version est publiée, l'appli propose **« Mettre à jour »** ; les données ne sont pas touchées.
-
-L'assistant IA de VIE (qui exige le serveur local du PC) n'est pas inclus dans la version mobile.
+*Démo publique de Vie en application installable (données fictives, rien n'est enregistré). Version française : `?lang=fr`.*

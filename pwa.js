@@ -1,12 +1,28 @@
-/* VIE mobile — couche « appli » ajoutée par-dessus le site existant (aucune modification de core.js / app.js).
-   1) service worker (hors ligne + mise à jour sur demande)  2) stockage persistant demandé au navigateur
-   3) barre d'onglets en bas sur téléphone  4) aide à l'installation  5) rappel de sauvegarde  6) raccourcis #week, #finance…
+/* VIE — couche « appli » (aucune modification de core.js / app.js) :
+   1) appli installable + service worker, UNIQUEMENT sur une adresse https (Tailscale ou GitHub Pages) : rien en file:// ni sur http://127.0.0.1
+   2) stockage persistant demandé  3) barre d'onglets en bas sur téléphone  4) aide à l'installation
+   5) rappel de sauvegarde (seulement si la synchronisation avec le PC n'est pas active)  6) raccourcis #week, #finance…
    Les données de VIE restent sous la clé « vie-personal-v1 » ; ce fichier n'utilise que sa propre clé « vie-mobile-ui ». */
 (function () {
   'use strict';
   var UI_KEY = 'vie-mobile-ui';
   var VIEWS = ['today', 'week', 'projects', 'study', 'career', 'life', 'finance', 'goals', 'ideas', 'settings'];
   var $ = function (s) { return document.querySelector(s); };
+  // Appli installable : sur https (Tailscale, GitHub Pages), ou sur http://127.0.0.1 pour la seule vitrine construite (balise <meta name="vie-pwa" content="toujours">, tests locaux).
+  // Jamais pour l'appli servie localement par vie-server sur http://127.0.0.1 (développement, mode structure, tests existants) ni en file://.
+  var https = location.protocol === 'https:' || (location.hostname === '127.0.0.1' && !!document.querySelector('meta[name="vie-pwa"][content="toujours"]'));
+  // Textes de cette couche : français (appli) ; allemand quand la démo publique est affichée en allemand (window.VieLang, posé par demo-i18n.js).
+  var T = window.VieLang === 'de' ? {
+    today: 'Heute', week: 'Woche', life: 'Gewohnheiten', finance: 'Finanzen', all: 'Alle', allAria: 'Alle Bereiche', bar: 'Schnellnavigation',
+    install: '<strong>VIE auf diesem Gerät installieren</strong>: Symbol auf dem Startbildschirm, Vollbild, funktioniert auch ohne Netz.', no: 'Nein danke', yes: 'Installieren',
+    ios: '<strong>VIE installieren:</strong> <b>Teilen</b> und dann <b>„Zum Home-Bildschirm“</b> antippen, danach VIE über das Symbol öffnen.', ok: 'Verstanden',
+    backup: '<strong>Denk an eine Sicherung.</strong> Hier liegen deine Daten nur auf diesem Gerät: exportiere ab und zu eine Kopie (JSON-Datei).', later: 'Später', exportNow: 'Jetzt exportieren'
+  } : {
+    today: 'Aujourd’hui', week: 'Semaine', life: 'Habitudes', finance: 'Finances', all: 'Tout', allAria: 'Toutes les rubriques', bar: 'Navigation rapide',
+    install: '<strong>Installer VIE sur cet appareil</strong> : icône sur l’écran d’accueil, ouverture plein écran, marche même sans réseau.', no: 'Non merci', yes: 'Installer',
+    ios: '<strong>Installer VIE :</strong> touche <b>Partager</b> puis <b>« Sur l’écran d’accueil »</b>, puis ouvre VIE depuis l’icône.', ok: 'Compris',
+    backup: '<strong>Pense à sauvegarder.</strong> Ici, tes données ne sont que sur cet appareil : exporte une copie (fichier JSON) de temps en temps.', later: 'Plus tard', exportNow: 'Exporter maintenant'
+  };
 
   function readUi() { try { return JSON.parse(localStorage.getItem(UI_KEY) || '{}') || {}; } catch (e) { return {}; } }
   function writeUi(patch) {
@@ -14,9 +30,9 @@
   }
   var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
 
-  /* ---------- petite bannière réutilisable ---------- */
+  /* ---------- bannière réutilisable (aussi par vie-sync.js) ---------- */
   function banner(id, html, actions) {
-    if (document.getElementById(id)) return;
+    var old = document.getElementById(id); if (old) old.remove();
     var el = document.createElement('div');
     el.id = id; el.className = 'vie-pwa-banner'; el.setAttribute('role', 'status');
     var p = document.createElement('div'); p.className = 'vie-pwa-text'; p.innerHTML = html; el.appendChild(p);
@@ -29,48 +45,37 @@
     });
     el.appendChild(box);
     document.body.appendChild(el);
+    return el;
   }
+  window.VieUI = Object.freeze({ banner: banner });
 
-  /* ---------- 1) service worker ---------- */
-  var secure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-  if ('serviceWorker' in navigator && secure) {
-    var reloading = false, userAsked = false;
-    navigator.serviceWorker.addEventListener('controllerchange', function () {
-      if (!userAsked || reloading) return;
-      reloading = true; location.reload();
+  /* ---------- 1) appli installable (https seulement) ---------- */
+  if (https) {
+    [['manifest', 'manifest.webmanifest'], ['icon', 'icons/favicon-48.png'], ['apple-touch-icon', 'icons/apple-touch-icon.png']].forEach(function (l) {
+      var link = document.createElement('link'); link.rel = l[0]; link.href = l[1];
+      if (l[0] === 'icon') { link.type = 'image/png'; link.sizes = '48x48'; }
+      document.head.appendChild(link);
     });
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('sw.js').then(function (reg) {
-        function offer(worker) {
-          banner('vie-update', '<strong>Nouvelle version de VIE disponible.</strong> Tes données restent sur le téléphone.', [
-            { label: 'Plus tard' },
-            { label: 'Mettre à jour', primary: true, run: function () { userAsked = true; worker.postMessage('VIE_SKIP_WAITING'); } }
-          ]);
-        }
-        if (reg.waiting && navigator.serviceWorker.controller) offer(reg.waiting);
-        reg.addEventListener('updatefound', function () {
-          var w = reg.installing; if (!w) return;
-          w.addEventListener('statechange', function () {
-            if (w.state === 'installed' && navigator.serviceWorker.controller) offer(w);
-          });
-        });
-        document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') reg.update().catch(function () {}); });
-      }).catch(function () { /* pas de hors-ligne, le site marche quand même */ });
-    });
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js').then(function (reg) {
+          document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') reg.update().catch(function () {}); });
+        }).catch(function () { /* pas de hors-ligne, l'appli marche quand même */ });
+      });
+    }
+    /* stockage persistant : le navigateur n'efface pas les données en cas de manque de place */
+    if (navigator.storage && navigator.storage.persist) {
+      navigator.storage.persisted().then(function (ok) { if (!ok) return navigator.storage.persist(); }).catch(function () {});
+    }
   }
 
-  /* ---------- 2) stockage persistant (évite que le navigateur efface les données en cas de manque de place) ---------- */
-  if (navigator.storage && navigator.storage.persist) {
-    navigator.storage.persisted().then(function (ok) { if (!ok) return navigator.storage.persist(); }).catch(function () {});
-  }
-
-  /* ---------- 3) barre d'onglets en bas ---------- */
-  var TABS = [['today', 'Aujourd’hui'], ['week', 'Semaine'], ['life', 'Habitudes'], ['finance', 'Finances']];
+  /* ---------- 3) barre d'onglets en bas (visible seulement sur petit écran, voir mobile.css) ---------- */
+  var TABS = [['today', T.today], ['week', T.week], ['life', T.life], ['finance', T.finance]];
   function navBtn(view) { return document.querySelector('#nav [data-view="' + view + '"]'); }
   function buildTabbar() {
     if (!$('#nav') || $('#vie-tabbar')) return;
     var bar = document.createElement('nav');
-    bar.id = 'vie-tabbar'; bar.className = 'vie-tabbar'; bar.setAttribute('aria-label', 'Navigation rapide');
+    bar.id = 'vie-tabbar'; bar.className = 'vie-tabbar'; bar.setAttribute('aria-label', T.bar);
     TABS.forEach(function (t) {
       var src = navBtn(t[0]);
       var icon = src && src.querySelector('.nav-icon') ? src.querySelector('.nav-icon').textContent : '•';
@@ -83,8 +88,9 @@
     });
     var more = document.createElement('button');
     more.type = 'button'; more.className = 'vie-tab'; more.dataset.tab = 'more';
-    more.innerHTML = '<span class="ico" aria-hidden="true">☰</span><span class="lbl">Tout</span>';
-    more.setAttribute('aria-label', 'Toutes les rubriques');
+    more.innerHTML = '<span class="ico" aria-hidden="true">☰</span><span class="lbl"></span>';
+    more.lastChild.textContent = T.all;
+    more.setAttribute('aria-label', T.allAria);
     more.addEventListener('click', function () { var m = $('#menu-btn'); if (m) m.click(); });
     bar.appendChild(more);
     document.body.appendChild(bar);
@@ -110,35 +116,36 @@
     try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ignoré */ }
   }
 
-  /* ---------- 4) aide à l'installation ---------- */
+  /* ---------- 4) aide à l'installation (https seulement) ---------- */
   var deferredPrompt = null;
   window.addEventListener('beforeinstallprompt', function (e) {
     e.preventDefault(); deferredPrompt = e;
     if (standalone || readUi().installDismissed) return;
-    banner('vie-install', '<strong>Installer VIE sur ce téléphone</strong> : icône sur l’écran d’accueil, ouverture plein écran, marche sans réseau.', [
-      { label: 'Non merci', run: function () { writeUi({ installDismissed: true }); } },
-      { label: 'Installer', primary: true, run: function () { deferredPrompt.prompt(); deferredPrompt = null; } }
+    banner('vie-install', T.install, [
+      { label: T.no, run: function () { writeUi({ installDismissed: true }); } },
+      { label: T.yes, primary: true, run: function () { deferredPrompt.prompt(); deferredPrompt = null; } }
     ]);
   });
   function iosHint() {
     var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    if (!ios || standalone || readUi().iosDismissed) return;
-    banner('vie-install', '<strong>Installer VIE :</strong> touche <b>Partager</b> <span aria-hidden="true">⬆︎</span> puis <b>« Sur l’écran d’accueil »</b>. Ouvre ensuite VIE depuis l’icône (l’appli installée a ses propres données).', [
-      { label: 'Compris', primary: true, run: function () { writeUi({ iosDismissed: true }); } }
+    if (!https || !ios || standalone || readUi().iosDismissed) return;
+    banner('vie-install', T.ios, [
+      { label: T.ok, primary: true, run: function () { writeUi({ iosDismissed: true }); } }
     ]);
   }
 
-  /* ---------- 5) rappel de sauvegarde (les données n'existent que sur ce téléphone) ---------- */
+  /* ---------- 5) rappel de sauvegarde (inutile quand la synchro avec le PC est active : le PC garde aussi l'historique) ---------- */
   function backupReminder() {
+    if (document.documentElement.dataset.vieSync === 'on') return;
     var u = readUi(), now = Date.now(), DAY = 864e5;
     if (!u.firstSeen) { writeUi({ firstSeen: now }); return; }
     var last = u.lastExport || u.firstSeen;
     if (now - last < 14 * DAY) return;
     if (u.lastReminder && now - u.lastReminder < 3 * DAY) return;
     writeUi({ lastReminder: now });
-    banner('vie-backup', '<strong>Pense à sauvegarder.</strong> Tes données ne sont que sur ce téléphone : exporte une copie (fichier JSON) de temps en temps.', [
-      { label: 'Plus tard' },
-      { label: 'Exporter maintenant', primary: true, run: function () { var b = document.querySelector('[data-action="export"]'); if (b) b.click(); } }
+    banner('vie-backup', T.backup, [
+      { label: T.later },
+      { label: T.exportNow, primary: true, run: function () { var b = document.querySelector('[data-action="export"]'); if (b) b.click(); } }
     ]);
   }
   document.addEventListener('click', function (e) {
@@ -149,7 +156,7 @@
     buildTabbar();
     openFromHash();
     iosHint();
-    backupReminder();
+    setTimeout(backupReminder, 15000);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

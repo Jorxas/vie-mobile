@@ -17,8 +17,21 @@ body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
 .vie-pwa-btn{border:0;border-radius:10px;padding:9px 14px;font:inherit;font-weight:700;font-size:13px;background:rgba(255,255,255,.12);color:#fff;cursor:pointer}
 .vie-pwa-btn.primary{background:#7372fc}
 
+/* Témoin de synchronisation avec le PC (vie-sync.js) */
+.vie-sync-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:650;color:var(--muted);padding:6px 10px;border:1px solid var(--edge);border-radius:999px;background:#fff;white-space:nowrap}
+.vie-sync-pill .dot{width:8px;height:8px;border-radius:50%;background:#b8bdcc;flex:none}
+.vie-sync-pill[data-state=ok] .dot{background:var(--green)}
+.vie-sync-pill[data-state=sending] .dot{background:var(--accent)}
+.vie-sync-pill[data-state=offline] .dot,.vie-sync-pill[data-state=pause] .dot{background:var(--gold)}
+.vie-sync-pill[data-state=conflict] .dot,.vie-sync-pill[data-state=error] .dot{background:var(--red)}
+
 @media(max-width:730px){
+  .vie-sync-pill{padding:8px;border:0;background:none}
+  .vie-sync-pill .txt{display:none}
   .vie-tabbar{display:flex}
+  /* Démo publique : le bandeau « données fictives » passe au-dessus de la barre d'onglets, les bannières au-dessus du bandeau */
+  [data-demo-hinweis]{bottom:calc(74px + env(safe-area-inset-bottom)) !important}
+  [data-demo-hinweis] ~ .vie-pwa-banner{bottom:calc(150px + env(safe-area-inset-bottom))}
   .vie-pwa-banner{bottom:calc(76px + env(safe-area-inset-bottom))}
   main{padding-bottom:calc(100px + env(safe-area-inset-bottom))}
   /* iPhone : pas de zoom automatique quand on touche un champ (police >= 16 px) */

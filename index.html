@@ -1,24 +1,26 @@
 <!doctype html>
-<html lang="fr">
+<html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="color-scheme" content="light">
-  <meta name="description" content="VIE — votre poste de pilotage personnel : projets, études, habitudes et objectifs.">
-  <title>VIE</title>
-  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="vie-pwa" content="toujours">
   <meta name="theme-color" content="#ffffff">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="VIE">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="format-detection" content="telephone=no">
-  <link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png">
-  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="VIE, dein persönliches Cockpit: Projekte, Studium, Gewohnheiten und Ziele.">
+  <title>VIE · Persönlicher Bereich</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="mobile.css">
+  <script src="vie-boot.js"></script>
   <script defer src="core.js"></script>
+  <script defer src="demo-start.js"></script>
   <script defer src="app.js"></script>
+  <script defer src="vie-actions.js"></script>
+  <script defer src="vie-agent-ui.js"></script>
+  <script defer src="vie-assistant.js"></script>
   <script defer src="pwa.js"></script>
 </head>
 <body>
@@ -27,16 +29,19 @@
       <div class="brand"><div class="brand-icon">V<span>·</span></div><div><strong>VIE</strong><small>MON ESPACE</small></div></div>
       <div class="sidebar-label">ESPACE DE VIE</div>
       <nav id="nav" class="nav"></nav>
-      <div class="sidebar-bottom"><div class="sidebar-panel"><span class="pulse"></span><strong>Un pas après l'autre</strong><p>La progression n'a pas besoin de remplir chaque minute.</p></div><div class="local-tag">◉ Données sur cet appareil</div></div>
+      <div class="sidebar-bottom"><div class="sidebar-panel"><span class="pulse"></span><strong>Un pas après l'autre</strong><p>La progression n'a pas besoin de remplir chaque minute.</p></div><div class="local-tag">◉ Données locales · V1</div></div>
     </aside>
     <div class="backdrop" id="backdrop"></div>
     <div class="page-shell">
-      <header class="topbar"><div class="top-left"><button id="menu-btn" class="icon-btn mobile-menu" aria-label="Ouvrir le menu">☰</button><div id="breadcrumb">Mon espace <span>/</span> Aujourd'hui</div></div><div class="top-actions"><span class="today-pill" id="header-date"></span><button class="small-btn" data-action="export" title="Sauvegarder vos données">↧ <span>Exporter</span></button><button class="avatar-btn" data-action="navigate" data-view="settings" aria-label="Paramètres">V</button></div></header>
+      <header class="topbar"><div class="top-left"><button id="menu-btn" class="icon-btn mobile-menu" aria-label="Ouvrir le menu">☰</button><div id="breadcrumb">Mon espace <span>/</span> Aujourd'hui</div></div><div class="top-actions"><span class="today-pill" id="header-date"></span><button class="small-btn vie-launch" id="vie-launch" type="button" aria-controls="vie-panel" aria-expanded="false" aria-label="Ouvrir l’assistant Vie" title="Assistant Vie (Alt+V)">✦ <span>Vie</span></button><button class="small-btn" data-action="export" title="Sauvegarder vos données">↧ <span>Exporter</span></button><button class="avatar-btn" data-action="navigate" data-view="settings" aria-label="Paramètres">V</button></div></header>
       <main id="view" tabindex="-1"></main>
     </div>
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <dialog id="modal"><form method="dialog" id="modal-form"><div class="modal-head"><h2 id="modal-title">Modifier</h2><button class="close-btn" value="cancel" aria-label="Fermer">×</button></div><div id="modal-body"></div><footer class="modal-footer"><button value="cancel" class="btn secondary">Annuler</button><button id="modal-save" value="save" class="btn primary">Enregistrer</button></footer></form></dialog>
   <input id="file-import" type="file" accept=".json,application/json" hidden>
+  <script src="i18n-woerterbuch.js"></script>
+  <script src="vitrine-neutre.js"></script>
+  <script src="demo-i18n.js"></script>
 </body>
 </html>
